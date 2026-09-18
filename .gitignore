@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+.cache/
+.eslintcache
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.husky/_/

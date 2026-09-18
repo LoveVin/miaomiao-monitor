@@ -1,0 +1,23 @@
+{
+    "version": "0.2",
+    "language": "en,en-GB",
+    "files": ["packages/**/*.ts", "packages/**/*.md", "docs/**/*.md", "*.md", "*.json"],
+    "ignorePaths": ["node_modules/**", "dist/**", "build/**", ".turbo/**", "coverage/**", "pnpm-lock.yaml", ".git/**"],
+    "words": [
+        "MiaoMiao",
+        "miaomiao",
+        "pnpm",
+        "Turbo",
+        "TypeScript",
+        "ESLint",
+        "Prettier",
+        "Husky",
+        "commitlint",
+        "Commitizen",
+        "cz-git",
+        "ianvs",
+        "lint-staged",
+        "lintstagedrc",
+        "lockfiles"
+    ]
+}
