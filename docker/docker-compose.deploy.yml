@@ -1,0 +1,46 @@
+# 部署的 docker 配置
+
+include:
+    - 'docker-compose.yml'
+
+services:
+    miaomiao-monitor-server:
+        image: node:${NODE_VERSION:-22}-alpine
+        container_name: miaomiao-monitor-server
+        environment:
+            - NODE_ENV=production
+        # 挂载本地资源
+        volumes:
+            - ../:/app/monitor
+        # 工作目录
+        working_dir: /app/monitor/apps/backend/monitor
+        # 执行脚本
+        command: 'node dist/main.js'
+        depends_on:
+            - miaomiao-monitor-clickhouse
+            - miaomiao-monitor-postgres
+            - miaomiao-monitor-kafka
+    miaomiao-monitor-dsn-server:
+        image: node:${NODE_VERSION:-22}-alpine
+        container_name: miaomiao-monitor-dsn-server
+        environment:
+            - NODE_ENV=production
+        volumes:
+            - ../:/app/monitor
+        working_dir: /app/monitor/apps/backend/dsn-server
+        command: 'node dist/main.js'
+        depends_on:
+            - miaomiao-monitor-clickhouse
+            - miaomiao-monitor-kafka
+    miaomiao-monitor-client:
+        image: caddy:2.11.7
+        container_name: miaomiao-monitor-client
+        # 暴露端口
+        ports:
+            - '8000:80'
+        volumes:
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+            - ../apps/frontend/monitor/dist:/app/monitor
+        depends_on:
+            - miaomiao-monitor-server
+            - miaomiao-monitor-dsn-server

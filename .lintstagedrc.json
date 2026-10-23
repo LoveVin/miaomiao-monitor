@@ -1,6 +1,6 @@
 {
-    "*.{css,less}": ["prettier --write"],
-    "*.{js,jsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md}": ["prettier --write"],
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
+    "!(demos/**).{css,less}": ["prettier --write"],
+    "!(demos/**).{js,jsx}": ["eslint --fix", "prettier --write"],
+    "!(demos/**).{json,md}": ["prettier --write"],
+    "!(demos/**).{ts,tsx}": ["eslint --fix", "prettier --write"]
 }

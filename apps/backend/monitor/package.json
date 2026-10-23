@@ -1,0 +1,47 @@
+{
+    "name": "@miaomiao/monitor-server",
+    "version": "0.0.1",
+    "description": "",
+    "author": "",
+    "private": true,
+    "license": "UNLICENSED",
+    "type": "module",
+    "scripts": {
+        "build": "nest build",
+        "deploy": "nest deploy",
+        "start": "nest start",
+        "start:dev": "nest start --watch",
+        "start:debug": "nest start --debug --watch",
+        "start:prod": "node dist/main"
+    },
+    "dependencies": {
+        "@nestjs/common": "^12.0.1",
+        "@nestjs/config": "^12.0.0",
+        "@nestjs/core": "^12.0.1",
+        "@nestjs/platform-express": "^12.0.1",
+        "@nestjs/typeorm": "^12.0.1",
+        "@nestjs/passport": "^12.0.0",
+        "@nestjs/jwt": "^12.0.2",
+        "pg": "^8.23.0",
+        "@clickhouse/client": "^1.24.1",
+        "reflect-metadata": "^0.2.2",
+        "rxjs": "^7.8.1",
+        "typeorm": "0.3.31",
+        "passport": "0.7.0",
+        "passport-jwt": "4.0.1",
+        "zod": "3.23.1",
+        "nanoid": "^3.3.20"
+    },
+    "devDependencies": {
+        "@nestjs/cli": "^12.0.0",
+        "@nestjs/mau": "^0.2.6",
+        "@nestjs/schematics": "^12.0.0",
+        "@nestjs/swagger": "^12.0.2",
+        "@types/express": "^5.0.0",
+        "@types/node": "^24.0.0",
+        "@types/supertest": "^7.0.0",
+        "source-map-support": "^0.5.21",
+        "supertest": "^7.0.0",
+        "typescript": "^6.0.2"
+    }
+}

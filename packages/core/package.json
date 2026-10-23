@@ -1,23 +1,27 @@
 {
-    "name": "@miaomiao/core",
+    "name": "@miaomiao/monitor-sdk-core",
     "version": "0.1.0",
-    "private": false,
-    "type": "module",
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.mjs",
+    "types": "dist/types/index.d.ts",
     "exports": {
+        "./package.json": "./package.json",
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js"
+            "import": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/esm/index.mjs"
+            },
+            "require": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
         }
     },
     "scripts": {
-        "build": "tsc -p tsconfig.build.json",
-        "build:watch": "tsc -p tsconfig.build.json --watch",
-        "lint": "eslint src",
-        "typecheck": "tsc -p tsconfig.json --noEmit"
+        "build": "pnpm build:transpile && pnpm build:types",
+        "build:transpile": "tsup",
+        "build:types": "tsc -p tsconfig.types.json",
+        "clean": "rimraf dist",
+        "typecheck": "tsc --noEmit"
     }
 }

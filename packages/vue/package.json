@@ -1,0 +1,38 @@
+{
+    "name": "@miaomiao/monitor-vue",
+    "version": "0.1.0",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.mjs",
+    "types": "dist/types/index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "import": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/esm/index.mjs"
+            },
+            "require": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
+        }
+    },
+    "scripts": {
+        "build": "pnpm build:transpile && pnpm build:types",
+        "build:transpile": "tsup",
+        "build:types": "tsc -p tsconfig.types.json",
+        "clean": "rimraf dist",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@miaomiao/monitor-sdk-browser": "workspace:*",
+        "@miaomiao/monitor-sdk-core": "workspace:*"
+    },
+    "peerDependencies": {
+        "vue": "^3.4.0"
+    },
+    "devDependencies": {
+        "typescript": "~5.5.3",
+        "vue": "^3.5.13"
+    }
+}

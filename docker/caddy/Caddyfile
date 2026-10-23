@@ -1,0 +1,26 @@
+# 本地调试示例
+:80 {
+    encode zstd gzip
+
+    header +Cache-Control "max-age=0, private, must-revalidate"
+
+    handle_path /api/* {
+        rewrite * /api{path}
+        reverse_proxy miaomiao-monitor-server:3001
+    }
+
+    handle_path /dsn-api/* {
+        rewrite * /api{path}
+        reverse_proxy miaomiao-monitor-dsn-server:3000
+    }
+
+    uri strip_suffix /
+
+    root * /app/monitor
+
+    handle {
+        templates
+        try_files {path}.html {path} /
+        file_server
+    }
+}

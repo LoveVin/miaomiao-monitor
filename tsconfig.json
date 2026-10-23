@@ -1,20 +1,24 @@
 {
     "compilerOptions": {
+        "alwaysStrict": false,
         "declaration": true,
         "declarationMap": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
+        "downlevelIteration": true,
+        "importHelpers": true,
+        "inlineSources": true,
         "isolatedModules": true,
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "noEmit": true,
+        "lib": ["ESNext"],
+        "moduleResolution": "node",
+        "noErrorTruncation": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
-        "noUncheckedIndexedAccess": true,
-        "skipLibCheck": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "preserveWatchOutput": true,
         "sourceMap": true,
         "strict": true,
-        "target": "ES2022"
-    },
-    "exclude": ["node_modules", "dist", "build", ".turbo"]
+        "strictBindCallApply": false,
+        "target": "es2018",
+        "noUncheckedIndexedAccess": true
+    }
 }

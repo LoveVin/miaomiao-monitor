@@ -1,0 +1,31 @@
+{
+    "name": "@miaomiao/monitor-sdk-browser-utils",
+    "version": "0.1.0",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.mjs",
+    "types": "dist/types/index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "import": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/esm/index.mjs"
+            },
+            "require": {
+                "types": "./dist/types/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
+        }
+    },
+    "scripts": {
+        "build": "pnpm build:transpile && pnpm build:types",
+        "build:transpile": "tsup",
+        "build:types": "tsc -p tsconfig.types.json",
+        "clean": "rimraf dist",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@miaomiao/monitor-sdk-core": "workspace:*",
+        "web-vitals": "6.2.2"
+    }
+}
