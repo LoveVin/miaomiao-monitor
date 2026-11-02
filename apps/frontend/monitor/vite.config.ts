@@ -18,11 +18,11 @@ export default defineConfig({
         // 开发环境将 /api 请求代理到真实后端服务
         proxy: {
             '/api': {
-                target: 'http://localhost:3011',
+                target: 'http://localhost:3001',
                 changeOrigin: true,
             },
             '/dsn-api': {
-                target: 'http://localhost:3010',
+                target: 'http://localhost:3000',
                 changeOrigin: true,
                 rewrite(path) {
                     return path.replace(/^\/dsn-api/, '/api')
