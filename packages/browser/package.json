@@ -1,6 +1,16 @@
 {
     "name": "@miaomiao/monitor-sdk-browser",
     "version": "0.1.0",
+    "description": "Miaomiao monitor SDK for browser",
+    "license": "UNLICENSED",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LoveVin/miaomiao-monitor.git",
+        "directory": "packages/browser"
+    },
+    "files": [
+        "dist"
+    ],
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.mjs",
     "types": "dist/types/index.d.ts",

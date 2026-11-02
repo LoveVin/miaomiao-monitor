@@ -18,7 +18,10 @@
         "docker:start": "docker compose -p miaomiao-monitor --env-file .env.development -f docker/docker-compose.yml up -d",
         "docker:stop": "docker compose -p miaomiao-monitor --env-file .env.development -f docker/docker-compose.yml down",
         "docker:deploy": "docker compose -p miaomiao-monitor --env-file .env.production -f docker/docker-compose.deploy.yml up -d",
-        "docker:deploy:stop": "docker compose -p miaomiao-monitor --env-file .env.production -f docker/docker-compose.deploy.yml down"
+        "docker:deploy:stop": "docker compose -p miaomiao-monitor --env-file .env.production -f docker/docker-compose.deploy.yml down",
+        "registry:start": "docker compose -f docker/docker-compose.verdaccio.yml up -d",
+        "registry:stop": "docker compose -f docker/docker-compose.verdaccio.yml down",
+        "publish:sdk": "bash scripts/publish-sdk.sh"
     },
     "config": {
         "commitizen": {

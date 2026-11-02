@@ -49,3 +49,4 @@ docker/clickhouse
 docker/postgres
 docker/redis
 docker/kafka
+docker/verdaccio/storage/

@@ -1,0 +1,10 @@
+# 私有 npm registry（Verdaccio）
+services:
+    miaomiao-registry:
+        image: verdaccio/verdaccio:latest
+        container_name: miaomiao-registry
+        ports:
+            - '4873:4873'
+        volumes:
+            - ./verdaccio/config.yaml:/verdaccio/conf/config.yaml
+            - ./verdaccio/storage:/verdaccio/storage

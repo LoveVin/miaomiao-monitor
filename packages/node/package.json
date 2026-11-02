@@ -1,6 +1,16 @@
 {
     "name": "@miaomiao/monitor-node",
     "version": "0.1.0",
+    "description": "Miaomiao monitor SDK for Node.js",
+    "license": "UNLICENSED",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LoveVin/miaomiao-monitor.git",
+        "directory": "packages/node"
+    },
+    "files": [
+        "dist"
+    ],
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.mjs",
     "types": "dist/types/index.d.ts",
