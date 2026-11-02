@@ -1,12 +1,15 @@
+import { getDsnBase } from '@/lib/dsn'
 import type { ApplicationType, SetupGuide } from '@/types/domain'
+
+// initCode 模板中的 DSN 占位符，展示前按当前站点环境替换
+const DSN_PLACEHOLDER = '__DSN_BASE__'
 
 const setupGuides: Record<ApplicationType, SetupGuide> = {
     Vanilla: {
         type: 'Vanilla',
         packageName: '@miaomiao/monitor-sdk-browser',
         installCommand: 'npm install @miaomiao/monitor-sdk-browser',
-        initCode:
-            "import { captureMessage, init } from '@miaomiao/monitor-sdk-browser';\n\ninit({\n  dsn: 'http://localhost:3000/api/tracing/{appId}',\n});",
+        initCode: "import { captureMessage, init } from '@miaomiao/monitor-sdk-browser';\n\ninit({\n  dsn: '__DSN_BASE__/{appId}',\n});",
         testCode: "captureMessage('喵喵监控测试消息');",
         verifyText: '执行测试代码或在页面触发浏览器错误，返回监控事件列表确认消息或错误已上报。',
     },
@@ -15,7 +18,7 @@ const setupGuides: Record<ApplicationType, SetupGuide> = {
         packageName: '@miaomiao/monitor-react',
         installCommand: 'npm install @miaomiao/monitor-react',
         initCode:
-            'import { MiaoMiaoProvider } from \'@miaomiao/monitor-react\';\n\n<MiaoMiaoProvider dsn="http://localhost:3000/api/tracing/{appId}">\n  <App />\n</MiaoMiaoProvider>',
+            'import { MiaoMiaoProvider } from \'@miaomiao/monitor-react\';\n\n<MiaoMiaoProvider dsn="__DSN_BASE__/{appId}">\n  <App />\n</MiaoMiaoProvider>',
         testCode: "throw new Error('喵喵监控测试事件');",
         verifyText: '在 MiaoMiaoProvider 包裹的组件中触发测试错误，React Error Boundary 会上报错误和组件栈。',
     },
@@ -23,8 +26,7 @@ const setupGuides: Record<ApplicationType, SetupGuide> = {
         type: 'Vue',
         packageName: '@miaomiao/monitor-vue',
         installCommand: 'npm install @miaomiao/monitor-vue',
-        initCode:
-            "import { createMonitor } from '@miaomiao/monitor-vue';\n\napp.use(createMonitor({\n  dsn: 'http://localhost:3000/api/tracing/{appId}',\n}));",
+        initCode: "import { createMonitor } from '@miaomiao/monitor-vue';\n\napp.use(createMonitor({\n  dsn: '__DSN_BASE__/{appId}',\n}));",
         testCode: "throw new Error('喵喵监控测试事件');",
         verifyText: '在组件事件或生命周期钩子中触发测试错误，Vue 全局 errorHandler 会自动上报。',
     },
@@ -32,13 +34,16 @@ const setupGuides: Record<ApplicationType, SetupGuide> = {
         type: 'Node.js',
         packageName: '@miaomiao/monitor-node',
         installCommand: 'npm install @miaomiao/monitor-node',
-        initCode:
-            "import { init } from '@miaomiao/monitor-node';\n\ninit({\n  dsn: 'http://localhost:3000/api/tracing/{appId}',\n  tracesSampleRate: 1.0,\n});",
+        initCode: "import { init } from '@miaomiao/monitor-node';\n\ninit({\n  dsn: '__DSN_BASE__/{appId}',\n  tracesSampleRate: 1.0,\n});",
         testCode: "setTimeout(() => {\n  Promise.reject(new Error('喵喵监控测试事件'))\n}, 100)",
         verifyText: '重启 Node.js 服务并等待 Promise rejection，在事件列表确认进程错误已上报。',
     },
 }
 
 export async function getSetupGuide(type: ApplicationType): Promise<SetupGuide> {
-    return setupGuides[type]
+    const guide = setupGuides[type]
+    return {
+        ...guide,
+        initCode: guide.initCode.replaceAll(DSN_PLACEHOLDER, getDsnBase()),
+    }
 }

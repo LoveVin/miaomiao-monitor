@@ -7,12 +7,13 @@ import { SetupGuideView } from '@/components/applications/setup-guide'
 import { AppShell } from '@/components/layout/app-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { getDsnBase } from '@/lib/dsn'
 import { getApplications } from '@/services/api'
 import { getSetupGuide } from '@/services/setup-guides'
 import { APPLICATION_TYPES, type ApplicationType } from '@/types/domain'
 
-// 与被监控应用上报地址保持一致的 DSN 前缀
-const DSN_BASE = 'http://localhost:3000/api/tracing'
+// DSN 前缀跟随当前站点环境（本地开发走 Vite 代理，线上走 Caddy 转发）
+const DSN_BASE = getDsnBase()
 
 export function SetupPage() {
     const { applicationId } = useParams()
