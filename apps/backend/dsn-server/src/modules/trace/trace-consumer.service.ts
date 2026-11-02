@@ -70,11 +70,12 @@ export class TraceConsumerService implements OnModuleInit, OnModuleDestroy {
                 table: 'base_monitor_storage',
                 values: events.map(event => ({
                     app_id: event.app_id,
+                    event_id: event.event_id ?? '',
                     event_type: event.event_type,
                     message: event.message,
                     info: event.info,
                 })),
-                columns: ['app_id', 'event_type', 'message', 'info'],
+                columns: ['app_id', 'event_id', 'event_type', 'message', 'info'],
                 format: 'JSONEachRow',
             })
 

@@ -1,18 +1,31 @@
 import { createClient } from '@clickhouse/client'
 import { DynamicModule, Global, Module } from '@nestjs/common'
 
+interface ClickhouseModuleOptions {
+    url: string
+    username: string
+    password: string
+    database?: string
+}
+
+interface ClickhouseModuleAsyncOptions {
+    inject?: any[]
+    useFactory: (...args: any[]) => ClickhouseModuleOptions | Promise<ClickhouseModuleOptions>
+}
+
 @Global()
 @Module({})
 export class ClickhouseModule {
-    static forRoot(options: { url: string; username: string; password: string }): DynamicModule {
+    static forRootAsync(options: ClickhouseModuleAsyncOptions): DynamicModule {
         return {
             module: ClickhouseModule,
             providers: [
                 {
                     provide: 'CLICKHOUSE_CLIENT',
-                    useFactory: () => {
-                        // 确保只初始化一次客户端
-                        createClient(options)
+                    inject: options.inject ?? [],
+                    useFactory: async (...args: any[]) => {
+                        const clickhouse = await options.useFactory(...args)
+                        return createClient(clickhouse)
                     },
                 },
             ],

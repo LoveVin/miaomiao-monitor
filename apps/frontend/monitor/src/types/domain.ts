@@ -131,9 +131,37 @@ export interface ScheduledTask {
 export interface AlertRule {
     id: string
     name: string
+    applicationId: string
     application: string
-    status: 'enabled' | 'draft' | 'archived'
-    condition: string
-    channels: string[]
-    lastTriggered: string
+    type: 'error_count' | 'performance'
+    metricName: 'LCP' | 'FCP' | 'TTFB' | 'LOAD' | 'CLS' | null
+    aggregation: 'count' | 'avg' | 'p95'
+    operator: 'gt' | 'gte' | 'lt' | 'lte'
+    threshold: number
+    windowSeconds: number
+    minSamples: number
+    consecutiveBreaches: number
+    consecutiveRecoveries: number
+    reminderIntervalSeconds: number
+    notificationEmail: string | null
+    notificationEmailVerifiedAt: string | null
+    emailVerificationSentAt: string | null
+    status: 'enabled' | 'disabled' | 'archived'
+    evaluationStatus: 'unknown' | 'ok' | 'no_data' | 'error'
+    lastEvaluationError: string | null
+    lastEvaluatedAt: string | null
+    lastTriggeredAt: string | null
+    createdAt: string
+}
+
+export interface AlertIncident {
+    id: string
+    status: 'active' | 'recovered'
+    observedValue: number
+    threshold: number
+    sampleCount: number
+    triggeredAt: string
+    recoveredAt: string | null
+    acknowledgedAt: string | null
+    rule: AlertRule
 }

@@ -18,4 +18,4 @@ CLICKHOUSE_DATABASE=your_database \
 pnpm db:migrate:clickhouse
 ```
 
-工具会自动创建 `--db` 指定的数据库，并在数据库内维护 `_migrations` 表记录已应用的版本。部署顺序是：ClickHouse 可用、执行 `pnpm db:migrate:clickhouse`、启动 `dsn-server`。
+工具会自动创建 `--db` 指定的数据库，并在数据库内维护 `_migrations` 表记录已应用的版本。部署顺序是：ClickHouse 可用、执行 `pnpm db:migrate:clickhouse`、启动 `dsn-server` 和 `monitor`。告警聚合依赖 `0003_add_event_id.sql` 创建的 `event_id` 字段；确保迁移完成后再启动消费者。

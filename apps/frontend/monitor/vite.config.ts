@@ -12,14 +12,17 @@ export default defineConfig({
         alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
     server: {
+        // 监听所有网卡：localhost 在 Node 17+ 可能只解析到 IPv6 回环，
+        // 导致 127.0.0.1 及局域网设备（手机点验证邮件链接）无法访问
+        host: true,
         // 开发环境将 /api 请求代理到真实后端服务
         proxy: {
             '/api': {
-                target: 'http://localhost:3001',
+                target: 'http://localhost:3011',
                 changeOrigin: true,
             },
             '/dsn-api': {
-                target: 'http://localhost:3000',
+                target: 'http://localhost:3010',
                 changeOrigin: true,
                 rewrite(path) {
                     return path.replace(/^\/dsn-api/, '/api')

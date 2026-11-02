@@ -1,4 +1,4 @@
-import { Activity, Bell, Bug, Clock3, Gauge, LayoutDashboard, Sparkles } from 'lucide-react'
+import { Activity, Bell, Bug, Gauge, LayoutDashboard, Sparkles } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { CurrentAppSwitcher } from '@/components/monitoring/current-app-switcher'
@@ -8,7 +8,6 @@ const primaryNav = [
     { label: '总览', to: '/', icon: LayoutDashboard, end: true },
     { label: '缺陷', to: '/defects', icon: Bug },
     { label: '性能', to: '/performance', icon: Gauge },
-    { label: '定时任务', to: '/scheduled-tasks', icon: Clock3 },
     { label: '告警', to: '/alerts', icon: Bell },
 ]
 

@@ -71,7 +71,7 @@ pnpm install
 cp .env.example .env.development
 ```
 
-后端服务通过 `ConfigModule` 读取根目录 `.env.development` 或 `.env.production`。配置项包括 PostgreSQL、ClickHouse、Kafka、JWT 等参数。如果本机启动 Docker 依赖，通常需要将 PostgreSQL、ClickHouse 和 Kafka 地址指向 `127.0.0.1`。
+后端服务通过 `ConfigModule` 读取根目录 `.env.development` 或 `.env.production`。配置项包括 PostgreSQL、ClickHouse、Kafka、JWT 和 SMTP 等参数。如果本机启动 Docker 依赖，通常需要将 PostgreSQL、ClickHouse 和 Kafka 地址指向 `127.0.0.1`。告警邮件需要配置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_FROM`；认证 SMTP 服务还需设置 `SMTP_USERNAME`、`SMTP_PASSWORD`。`APP_WEB_URL` 用于生成邮箱验证链接，默认指向本地控制台。
 
 ## 本地开发
 
@@ -81,11 +81,15 @@ cp .env.example .env.development
 pnpm docker:start
 ```
 
+邮箱验证邮件会通过 `.env.development` 中配置的 SMTP 服务真实发出（本地开发也不例外）。建议本地开发配置一个测试邮箱作为收件地址，避免验证邮件发送到真实用户。
+
 执行 ClickHouse 迁移：
 
 ```bash
 pnpm db:migrate:clickhouse
 ```
+
+ClickHouse 迁移必须在启动 `dsn-server` 前执行。`0003_add_event_id.sql` 为新事件增加去重 ID，消费者写入和告警聚合都会使用该字段。
 
 启动服务和控制台：
 
@@ -100,8 +104,12 @@ pnpm dev:client:monitor
 | 服务         | 地址                  | 说明                       |
 | ------------ | --------------------- | -------------------------- |
 | 控制台       | http://localhost:5173 | Vite 开发服务器            |
-| `dsn-server` | http://localhost:3000 | 事件上报与 ClickHouse 查询 |
-| `monitor`    | http://localhost:3001 | 认证与应用管理             |
+| `dsn-server` | http://localhost:3010 | 事件上报与 ClickHouse 查询 |
+| `monitor`    | http://localhost:3011 | 认证、应用与告警管理       |
+
+在控制台的告警页，可以为当前应用创建错误数量或 Web Vital 性能规则。每条规则必须独立填写告警收件邮箱，保存后显示「待验证」。点击该规则的「发送验证邮件」，收件人在 30 分钟内打开链接并确认邮箱后，规则创建者即可启用规则。验证链接仅可使用一次，重发间隔为 60 秒；修改收件地址会暂停规则并清除验证状态，旧链接随之失效。收件人无需登录即可验证。触发、提醒和恢复邮件均发送至该规则已验证的收件地址。已有规则也需要验证各自的收件邮箱；缺少地址的规则需先通过编辑补填，不再回退到账户邮箱。后台每分钟评估一次；事件时间采用 ClickHouse 接收时间，受 Kafka 入库延迟影响。当前评估器按单个 `monitor` 实例运行。
+
+`APP_WEB_URL` 需配置为收件人可访问的前端地址，生产环境应使用 HTTPS。开发环境的 `http://localhost:5173` 链接只能在运行前端的电脑上打开；如果要在手机等局域网设备上打开验证链接，请把 `APP_WEB_URL` 改为本机局域网 IP（macOS 用 `ipconfig getifaddr en0` 查看），并确认 Vite 开发服务器监听了所有网卡（配置中已设置 `server.host: true`）。修改后需要重启前端开发服务器和 `monitor` 服务。后端邮箱验证测试：`pnpm --filter @miaomiao/monitor-server test:email-verification`（使用 Node.js 24，测试不会发送真实邮件）。
 
 控制台开发服务器会将 `/api` 代理到 `monitor` 服务，将 `/dsn-api` 代理到 `dsn-server` 服务。
 

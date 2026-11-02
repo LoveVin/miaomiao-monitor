@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 import { GuestOnly, RequireAuth } from '@/lib/auth-guards'
+import { AlertEmailVerificationPage } from '@/pages/alert-email-verification-page'
 import { AlertsPage } from '@/pages/alerts-page'
 import { ApplicationDetailPage } from '@/pages/application-detail-page'
 import { ApplicationsPage } from '@/pages/applications-page'
@@ -12,10 +13,10 @@ import { OverviewPage } from '@/pages/overview-page'
 import { PerformanceOverviewPage } from '@/pages/performance-overview-page'
 import { PerformancePage } from '@/pages/performance-page'
 import { RegisterPage } from '@/pages/register-page'
-import { ScheduledTasksPage } from '@/pages/scheduled-tasks-page'
 import { SetupPage } from '@/pages/setup-page'
 
 export const router = createBrowserRouter([
+    { path: '/alerts/email/verify', element: <AlertEmailVerificationPage /> },
     {
         element: <RequireAuth />,
         children: [
@@ -32,7 +33,6 @@ export const router = createBrowserRouter([
                     { path: '/performance', element: <PerformancePage /> },
                     { path: '/performance/overview', element: <PerformanceOverviewPage /> },
                     { path: '/monitoring', element: <Navigate to="/" replace /> },
-                    { path: '/scheduled-tasks', element: <ScheduledTasksPage /> },
                     { path: '/alerts', element: <AlertsPage /> },
                 ],
             },

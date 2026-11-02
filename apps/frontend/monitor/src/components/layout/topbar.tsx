@@ -32,15 +32,13 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
                 ? '性能概览'
                 : pathname.startsWith('/performance')
                   ? '性能'
-                  : pathname.startsWith('/scheduled-tasks')
-                    ? '定时任务'
-                    : pathname.startsWith('/alerts')
-                      ? '告警'
-                      : pathname === '/login'
-                        ? '登录'
-                        : pathname === '/register'
-                          ? '注册'
-                          : '总览'
+                  : pathname.startsWith('/alerts')
+                    ? '告警'
+                    : pathname === '/login'
+                      ? '登录'
+                      : pathname === '/register'
+                        ? '注册'
+                        : '总览'
     const title = current === '总览' ? '今天的运行状态' : current
     const handleLogout = () => {
         setMenuOpen(false)
