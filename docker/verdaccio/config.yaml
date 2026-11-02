@@ -15,9 +15,9 @@ uplinks:
         cache: true
 
 packages:
-    # 私有 scope：仅认证用户可读写，不代理到 npmjs
+    # 私有 scope：安装免登录（便于 CI/新机器接入），发布仍需认证
     '@miaomiao/*':
-        access: $authenticated
+        access: $all
         publish: $authenticated
         unpublish: $authenticated
 
