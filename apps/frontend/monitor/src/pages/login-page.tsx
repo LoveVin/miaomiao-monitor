@@ -19,7 +19,12 @@ export function LoginPage() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<AuthPayload>()
+    } = useForm<AuthPayload>({
+        defaultValues: {
+            username: 'test',
+            password: '123456',
+        },
+    })
     const mutation = useMutation({
         mutationFn: login,
         onSuccess: async () => {
