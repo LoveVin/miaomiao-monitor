@@ -11,6 +11,7 @@ services:
             - CLICKHOUSE_DB=${CLICKHOUSE_DATABASE:?CLICKHOUSE_DATABASE is required}
         volumes:
             - ./clickhouse:/var/lib/clickhouse
+        restart: unless-stopped
 
     miaomiao-monitor-postgres:
         image: postgres:18.6
@@ -23,6 +24,7 @@ services:
             - POSTGRES_DB=${DATABASE_NAME:?DATABASE_NAME is required}
         volumes:
             - ./postgres:/var/lib/postgresql
+        restart: unless-stopped
 
     miaomiao-monitor-kafka:
         image: apache/kafka:4.3.1
@@ -43,3 +45,7 @@ services:
             - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
             - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
             - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+            # 2GB 小服务器：限制 Kafka 堆内存，避免被宿主机 OOM kill（Exited 137 事故）
+            - KAFKA_HEAP_OPTS=-Xmx512m -Xms256m
+        mem_limit: 768m
+        restart: unless-stopped

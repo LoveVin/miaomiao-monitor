@@ -1,47 +1,67 @@
-# 部署的 docker 配置
+# 生产部署 docker 配置（镜像分发模式）
+# 用法（在仓库根目录执行，三个镜像 digest 由 CD 流水线注入 docker/images.env）：
+#   docker compose -p miaomiao-monitor --env-file .env.production -f docker/docker-compose.deploy.yml pull ...
+#   docker compose -p miaomiao-monitor --env-file .env.production -f docker/docker-compose.deploy.yml up -d ...
+#
+# 设计说明：
+#   - 镜像由 GitHub Actions 构建并推送到阿里云 ACR，服务器只负责 pull + run，
+#     不再在服务器上执行 pnpm install / build（2GB 内存服务器跑不动全量构建）
+#   - 后端容器通过 env_file 注入环境变量；代码内 ConfigModule 的
+#     ../../../../.env.production 相对路径在镜像内不存在，属预期行为
+#   - 前端静态资源直接打进 client 镜像，由 Caddy 直接服务
+#   - 基础设施（ClickHouse / Postgres / Kafka）仍由本 compose 提供
 
 include:
     - 'docker-compose.yml'
-    - 'docker-compose.verdaccio.yml'
 
 services:
     miaomiao-monitor-server:
-        image: node:${NODE_VERSION:-22}-alpine
+        image: ${SERVER_IMAGE:?Set SERVER_IMAGE to the image digest from the build}
         container_name: miaomiao-monitor-server
         environment:
             - NODE_ENV=production
-        # 挂载本地资源
-        volumes:
-            - ../:/app/monitor
-        # 工作目录
-        working_dir: /app/monitor/apps/backend/monitor
-        # 执行脚本
-        command: 'node dist/main.js'
+            - PORT=3001
+        env_file:
+            - ../.env.production
         depends_on:
             - miaomiao-monitor-clickhouse
             - miaomiao-monitor-postgres
-            - miaomiao-monitor-kafka
+        restart: unless-stopped
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '100m'
+                max-file: '3'
+
     miaomiao-monitor-dsn-server:
-        image: node:${NODE_VERSION:-22}-alpine
+        image: ${DSN_IMAGE:?Set DSN_IMAGE to the image digest from the build}
         container_name: miaomiao-monitor-dsn-server
         environment:
             - NODE_ENV=production
-        volumes:
-            - ../:/app/monitor
-        working_dir: /app/monitor/apps/backend/dsn-server
-        command: 'node dist/main.js'
+            - PORT=3000
+        env_file:
+            - ../.env.production
         depends_on:
             - miaomiao-monitor-clickhouse
             - miaomiao-monitor-kafka
+        restart: unless-stopped
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '100m'
+                max-file: '3'
+
     miaomiao-monitor-client:
-        image: caddy:2.11.7
+        image: ${CLIENT_IMAGE:?Set CLIENT_IMAGE to the image digest from the build}
         container_name: miaomiao-monitor-client
-        # 暴露端口
         ports:
             - '8000:80'
-        volumes:
-            - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-            - ../apps/frontend/monitor/dist:/app/monitor
         depends_on:
             - miaomiao-monitor-server
             - miaomiao-monitor-dsn-server
+        restart: unless-stopped
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '100m'
+                max-file: '3'

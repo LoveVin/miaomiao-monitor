@@ -8,20 +8,95 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    deploy:
-        name: Deploy to server
+    build:
+        name: Build and push images
         runs-on: ubuntu-latest
         timeout-minutes: 30
-
+        outputs:
+            dsn_digest: ${{ steps.build_dsn.outputs.digest }}
+            server_digest: ${{ steps.build_server.outputs.digest }}
+            client_digest: ${{ steps.build_client.outputs.digest }}
         steps:
-            - name: Deploy over SSH
-              env:
-                  SERVER_HOST: ${{ secrets.SERVER_HOST }}
-                  SERVER_USER: ${{ secrets.SERVER_USER }}
-                  SERVER_PORT: ${{ secrets.SERVER_PORT }}
-                  SERVER_PROJECT_DIR: ${{ secrets.SERVER_PROJECT_DIR }}
-                  SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-                  SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log in to Aliyun ACR
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ secrets.ACR_REGISTRY }}
+                  username: ${{ secrets.ACR_USERNAME }}
+                  password: ${{ secrets.ACR_PASSWORD }}
+
+            # 阿里云 ACR 个人版不支持 OCI attestations（provenance/SBOM），必须关闭
+            - name: Build and push dsn-server image
+              id: build_dsn
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: docker/dsn-server.Dockerfile
+                  push: true
+                  provenance: false
+                  sbom: false
+                  tags: |
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-dsn-server:sha-${{ github.sha }}
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-dsn-server:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+            - name: Build and push monitor-server image
+              id: build_server
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: docker/monitor-server.Dockerfile
+                  push: true
+                  provenance: false
+                  sbom: false
+                  tags: |
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server:sha-${{ github.sha }}
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+            - name: Build and push client image
+              id: build_client
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: docker/client.Dockerfile
+                  push: true
+                  provenance: false
+                  sbom: false
+                  tags: |
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-client:sha-${{ github.sha }}
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-client:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+    deploy:
+        name: Deploy to server
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        env:
+            SERVER_HOST: ${{ secrets.SERVER_HOST }}
+            SERVER_USER: ${{ secrets.SERVER_USER }}
+            SERVER_PORT: ${{ secrets.SERVER_PORT }}
+            SERVER_PROJECT_DIR: ${{ secrets.SERVER_PROJECT_DIR }}
+            SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+            SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+            # 使用本次构建的不可变 digest，避免同一 commit 重跑时 sha 标签被覆盖
+            DSN_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-dsn-server@${{ needs.build.outputs.dsn_digest }}
+            SERVER_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server@${{ needs.build.outputs.server_digest }}
+            CLIENT_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-client@${{ needs.build.outputs.client_digest }}
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Set up SSH
               run: |
                   set -euo pipefail
 
@@ -32,11 +107,91 @@ jobs:
                   printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
                   chmod 600 ~/.ssh/deploy_key
 
+            - name: Verify image refs
+              run: |
+                  set -euo pipefail
+                  for ref in "$DSN_IMAGE" "$SERVER_IMAGE" "$CLIENT_IMAGE"; do
+                      echo "$ref"
+                      if [[ ! "$ref" =~ ^[^[:space:]@]+@sha256:[a-f0-9]{64}$ ]]; then
+                          echo '::error::Image ref must contain the sha256 digest from this build' >&2
+                          exit 1
+                      fi
+                  done
+
+            - name: Sync compose files, deploy script and migrations
+              run: |
+                  set -euo pipefail
                   ssh -i ~/.ssh/deploy_key \
-                    -p "$SERVER_PORT" \
+                    -p "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    "$SERVER_USER@$SERVER_HOST" \
+                    "mkdir -p '$SERVER_PROJECT_DIR/docker' '$SERVER_PROJECT_DIR/sql/migrations' '$SERVER_PROJECT_DIR/scripts'"
+
+                  scp -i ~/.ssh/deploy_key \
+                    -P "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    docker/docker-compose.yml \
+                    docker/docker-compose.deploy.yml \
+                    "$SERVER_USER@$SERVER_HOST:$SERVER_PROJECT_DIR/docker/"
+
+                  scp -i ~/.ssh/deploy_key \
+                    -P "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    sql/migrations/*.sql \
+                    "$SERVER_USER@$SERVER_HOST:$SERVER_PROJECT_DIR/sql/migrations/"
+
+                  scp -i ~/.ssh/deploy_key \
+                    -P "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    scripts/deploy.sh \
+                    "$SERVER_USER@$SERVER_HOST:$SERVER_PROJECT_DIR/scripts/"
+
+            - name: Write image refs
+              run: |
+                  set -euo pipefail
+                  printf 'DSN_IMAGE=%s\nSERVER_IMAGE=%s\nCLIENT_IMAGE=%s\nGIT_SHA=%s\n' \
+                    "$DSN_IMAGE" "$SERVER_IMAGE" "$CLIENT_IMAGE" "$GITHUB_SHA" \
+                    > docker/images.env
+
+                  scp -i ~/.ssh/deploy_key \
+                    -P "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    docker/images.env \
+                    "$SERVER_USER@$SERVER_HOST:$SERVER_PROJECT_DIR/docker/images.env"
+
+            - name: Log server in to Aliyun ACR
+              env:
+                  ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}
+                  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+                  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+              run: |
+                  # base64 编码传输，避免密码被两端 shell 二次解析或出现在 ps 中
+                  ACR_PASSWORD_B64=$(printf '%s' "$ACR_PASSWORD" | base64 | tr -d '\n')
+
+                  ssh -i ~/.ssh/deploy_key \
+                    -p "${SERVER_PORT:-22}" \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=yes \
+                    "$SERVER_USER@$SERVER_HOST" "printf '%s' '$ACR_PASSWORD_B64' | base64 -d | docker login '$ACR_REGISTRY' --username '$ACR_USERNAME' --password-stdin"
+
+            - name: Pull images, migrate and start services
+              run: |
+                  ssh -i ~/.ssh/deploy_key \
+                    -p "${SERVER_PORT:-22}" \
                     -o BatchMode=yes \
                     -o IdentitiesOnly=yes \
                     -o StrictHostKeyChecking=yes \
                     -o ServerAliveInterval=30 \
                     "$SERVER_USER@$SERVER_HOST" \
-                    "cd '$SERVER_PROJECT_DIR' && ./scripts/deploy.sh"
+                    "cd '$SERVER_PROJECT_DIR' && bash scripts/deploy.sh"
