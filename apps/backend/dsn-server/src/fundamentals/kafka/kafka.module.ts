@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module } from '@nestjs/common'
+import { DynamicModule, Global, Logger, Module } from '@nestjs/common'
 import { Consumer, Kafka, Producer } from 'kafkajs'
 
 import { KAFKA_CLIENT, KAFKA_CONSUMER, KAFKA_PRODUCER, TRACE_CONSUMER_GROUP } from './constants.js'
@@ -17,6 +17,8 @@ interface KafkaModuleAsyncOptions {
 @Module({})
 export class KafkaModule {
     static forRootSync(options: KafkaModuleAsyncOptions): DynamicModule {
+        const logger = new Logger(KafkaModule.name)
+
         return {
             module: KafkaModule,
             imports: [],
@@ -41,7 +43,11 @@ export class KafkaModule {
                             idempotent: true,
                         })
 
-                        await producer.connect()
+                        // 降级容忍：Kafka 不可用时应用必须能正常启动，
+                        // kafkajs 会在 send() 时懒连接并自动重试，这里不阻塞启动
+                        producer.connect().catch(error => {
+                            logger.error(`Kafka producer initial connect failed, will retry on send: ${error}`)
+                        })
 
                         return producer
                     },
@@ -54,8 +60,7 @@ export class KafkaModule {
                             groupId: TRACE_CONSUMER_GROUP,
                         })
 
-                        await consumer.connect()
-
+                        // 连接与订阅由 TraceConsumerService 负责重试，这里不阻塞启动
                         return consumer
                     },
                 },

@@ -8,14 +8,24 @@ import { TraceService } from './trace.service.js'
 @ApiTags('性能指标')
 @Controller()
 export class TraceController {
+    private readonly logger = new Logger(TraceController.name)
+
     constructor(private readonly traceService: TraceService) {}
 
     @Post('tracing/:app_id')
     @HttpCode(HttpStatus.ACCEPTED)
-    tracing(@Param() { app_id }: { app_id: string }, @Body() params: { event_type: string; message: string }) {
-        Logger.log(app_id)
-        Logger.log(params)
-        return this.traceService.tracing(app_id, params)
+    async tracing(
+        @Param() { app_id }: { app_id: string },
+        @Body() params: { event_type: string; message: string }
+    ) {
+        // 降级兜底：持久化失败也不能让采集入口报错，业务方不应感知监控系统故障
+        try {
+            await this.traceService.tracing(app_id, params)
+        } catch (error) {
+            this.logger.error(
+                `Failed to persist trace event (dropped): ${error instanceof Error ? error.stack || error.message : String(error)}`
+            )
+        }
     }
 
     @ApiBearerAuth()
