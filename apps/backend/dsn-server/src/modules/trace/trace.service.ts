@@ -111,8 +111,16 @@ export class TraceService {
             query,
         })
 
-        const queryResult = await res.json()
+        const rows = ((await res.json()).data ?? []) as Array<{ app_id: string; info?: { path?: string } }>
 
-        return queryResult.data
+        // 前端契约：Record<appId, Record<path, DsnEventEntity[]>>
+        // 性能页按「应用 -> 页面路径」聚合事务（P50/P95 等）
+        return rows.reduce<Record<string, Record<string, unknown[]>>>((grouped, row) => {
+            const path = row.info?.path ?? '/'
+            grouped[row.app_id] ??= {}
+            grouped[row.app_id][path] ??= []
+            grouped[row.app_id][path].push(row)
+            return grouped
+        }, {})
     }
 }
