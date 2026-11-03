@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ApplicationCard } from '@/components/applications/application-card'
-import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FilterTabs } from '@/components/ui/filter-tabs'
@@ -23,7 +22,7 @@ export function ApplicationsPage() {
     )
 
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
@@ -68,6 +67,6 @@ export function ApplicationsPage() {
                     </Card>
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }

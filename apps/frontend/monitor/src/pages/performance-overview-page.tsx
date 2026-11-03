@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Activity, ArrowLeft, CheckCircle2, Info, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { Bars, MetricCard, Rating, SectionHeader } from '@/components/monitoring/monitoring-ui'
 import { useCurrentApplication } from '@/components/monitoring/use-current-application'
 import { Button } from '@/components/ui/button'
@@ -19,16 +18,16 @@ export function PerformanceOverviewPage() {
     })
     if (!query.data)
         return (
-            <AppShell>
+            <>
                 <Loading label="正在加载性能概览…" className="py-24" />
-            </AppShell>
+            </>
         )
     const data = query.data
     const distributionGradient = createGradient(data.distribution)
     const goodRating = data.distribution.find(item => item.label === '良好')?.value ?? 0
 
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <Link to="/performance" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-200">
                     <ArrowLeft className="size-3.5" />
@@ -120,7 +119,7 @@ export function PerformanceOverviewPage() {
                     </CardContent>
                 </Card>
             </div>
-        </AppShell>
+        </>
     )
 }
 

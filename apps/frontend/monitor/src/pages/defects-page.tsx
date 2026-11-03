@@ -3,7 +3,6 @@ import { Bug, Search, TrendingDown, TrendingUp } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { MetricCard, StatusBadge, tableCell, TableEmpty, tableHeader, TableShell } from '@/components/monitoring/monitoring-ui'
 import { useCurrentApplication } from '@/components/monitoring/use-current-application'
 import { FilterTabs } from '@/components/ui/filter-tabs'
@@ -34,7 +33,7 @@ export function DefectsPage() {
         [allDefects, search, tab]
     )
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <PageIntro title="发现并解决问题" description="集中查看所有 Vanilla、React、Vue、Node.js 应用中的异常。" />
                 <div className="grid gap-4 sm:grid-cols-3">
@@ -123,7 +122,7 @@ export function DefectsPage() {
                     <TableEmpty>没有符合条件的问题</TableEmpty>
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }
 

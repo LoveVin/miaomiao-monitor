@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Activity, ArrowDownRight, ArrowUpRight, MoreHorizontal, Radio } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { EventIcon, SectionHeader, StatusBadge } from '@/components/monitoring/monitoring-ui'
 import { useCurrentApplication } from '@/components/monitoring/use-current-application'
 import { Badge } from '@/components/ui/badge'
@@ -22,27 +21,27 @@ export function OverviewPage() {
     })
     if (applicationsLoading)
         return (
-            <AppShell>
+            <>
                 <Loading label="正在加载监控数据…" className="min-h-[50vh]" />
-            </AppShell>
+            </>
         )
     if (!applications.length)
         return (
-            <AppShell>
+            <>
                 <EmptyState />
-            </AppShell>
+            </>
         )
     if (query.isLoading || !query.data)
         return (
-            <AppShell>
+            <>
                 <Loading label="正在加载监控数据…" className="min-h-[50vh]" />
-            </AppShell>
+            </>
         )
     const data = query.data
     const eventGradient = createGradient(data.eventBreakdown)
 
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
@@ -186,7 +185,7 @@ export function OverviewPage() {
                     </Card>
                 </div>
             </div>
-        </AppShell>
+        </>
     )
 }
 

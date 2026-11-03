@@ -3,7 +3,6 @@ import { Bell, ChevronDown, Plus, Search } from 'lucide-react'
 import { Dialog } from 'radix-ui'
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { StatusBadge, tableCell, TableEmpty, tableHeader, TableShell } from '@/components/monitoring/monitoring-ui'
 import { useCurrentApplication } from '@/components/monitoring/use-current-application'
 import { Button } from '@/components/ui/button'
@@ -184,7 +183,7 @@ export function AlertsPage() {
     }
 
     return (
-        <AppShell>
+        <>
             <Dialog.Root
                 open={formOpen}
                 onOpenChange={open => {
@@ -627,6 +626,6 @@ export function AlertsPage() {
                     </section>
                 </div>
             </Dialog.Root>
-        </AppShell>
+        </>
     )
 }

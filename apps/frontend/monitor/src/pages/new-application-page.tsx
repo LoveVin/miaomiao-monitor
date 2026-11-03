@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApplicationTypeCard } from '@/components/applications/application-type-card'
-import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
@@ -38,7 +37,7 @@ export function NewApplicationPage() {
     }
 
     return (
-        <AppShell>
+        <>
             <div className="mx-auto max-w-4xl space-y-6">
                 <Link to="/applications" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-200">
                     <ArrowLeft className="size-3.5" />
@@ -111,6 +110,6 @@ export function NewApplicationPage() {
                     </CardContent>
                 </Card>
             </div>
-        </AppShell>
+        </>
     )
 }

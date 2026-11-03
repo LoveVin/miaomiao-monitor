@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { MetricCard, SectionHeader, tableCell, tableHeader, TableShell } from '@/components/monitoring/monitoring-ui'
 import { useCurrentApplication } from '@/components/monitoring/use-current-application'
 import { Button } from '@/components/ui/button'
@@ -42,7 +41,7 @@ export function PerformancePage() {
     )
 
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
@@ -216,7 +215,7 @@ export function PerformancePage() {
                     </TableShell>
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }
 

@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Clock3, Filter, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { StatusBadge, tableCell, TableEmpty, tableHeader, TableShell } from '@/components/monitoring/monitoring-ui'
 import { Button } from '@/components/ui/button'
 import { FilterTabs } from '@/components/ui/filter-tabs'
@@ -24,7 +23,7 @@ export function ScheduledTasksPage() {
         [allTasks, search, tab]
     )
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                     <div>
@@ -120,6 +119,6 @@ export function ScheduledTasksPage() {
                     <TableEmpty>没有符合条件的定时任务</TableEmpty>
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }

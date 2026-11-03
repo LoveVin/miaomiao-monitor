@@ -3,7 +3,6 @@ import { ArrowLeft, Check, Copy, Pencil, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
@@ -74,7 +73,7 @@ export function ApplicationDetailPage() {
     }
 
     return (
-        <AppShell>
+        <>
             <div className="mx-auto max-w-4xl space-y-6">
                 <Link to="/applications" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-200">
                     <ArrowLeft className="size-3.5" />
@@ -210,6 +209,6 @@ export function ApplicationDetailPage() {
                     <Loading label="正在加载应用详情…" className="py-24" />
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { SetupGuideView } from '@/components/applications/setup-guide'
-import { AppShell } from '@/components/layout/app-shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getDsnBase } from '@/lib/dsn'
@@ -32,7 +31,7 @@ export function SetupPage() {
     // 将接入代码里的 appId 占位符替换为当前应用的真实 appId（未选中应用时显示占位提示）
     const initCode = guide.data ? guide.data.initCode.replaceAll(`${DSN_BASE}/{appId}`, dsn || `${DSN_BASE}/你的应用ID`) : undefined
     return (
-        <AppShell>
+        <>
             <div className="space-y-6">
                 <Link to="/applications" className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-slate-200">
                     <ArrowLeft className="size-3.5" />
@@ -90,6 +89,6 @@ export function SetupPage() {
                     <div className="py-20 text-center text-sm text-slate-500">正在准备接入步骤…</div>
                 )}
             </div>
-        </AppShell>
+        </>
     )
 }
