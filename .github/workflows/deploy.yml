@@ -56,8 +56,8 @@ jobs:
                   provenance: false
                   sbom: false
                   tags: |
-                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server:sha-${{ github.sha }}
-                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server:latest
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-server:sha-${{ github.sha }}
+                      ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-server:latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
@@ -90,7 +90,7 @@ jobs:
             SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
             # 使用本次构建的不可变 digest，避免同一 commit 重跑时 sha 标签被覆盖
             DSN_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-dsn-server@${{ needs.build.outputs.dsn_digest }}
-            SERVER_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-monitor-server@${{ needs.build.outputs.server_digest }}
+            SERVER_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-server@${{ needs.build.outputs.server_digest }}
             CLIENT_IMAGE: ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_IMAGE }}-client@${{ needs.build.outputs.client_digest }}
         steps:
             - name: Check out code
